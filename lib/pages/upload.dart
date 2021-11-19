@@ -1,17 +1,24 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:trip_badge/helpers/map_helper.dart';
+import 'dart:typed_data';
+import 'dart:ui';
 import 'package:trip_badge/models/user.dart';
 import 'package:trip_badge/pages/home.dart';
+import 'package:trip_badge/widgets/badgemap.dart';
+import 'package:trip_badge/widgets/post.dart';
 import 'package:trip_badge/widgets/progress.dart';
 import 'package:image/image.dart' as Im;
 import 'package:uuid/uuid.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class Upload extends StatefulWidget {
   final User? currentUser;
@@ -31,8 +38,15 @@ class _UploadState extends State<Upload>
   bool isUploading = false;
   String? postId;
 
-  double lat = -1;
-  double long = -1;
+  double lat = -1.1;
+  double long = -1.1;
+  Set<Marker> markers = {};
+
+  @override
+  void initState() {
+    getMarkers();
+    super.initState();
+  }
 
   handleTakePhoto() async {
     Navigator.pop(context);
@@ -149,30 +163,104 @@ class _UploadState extends State<Upload>
         });
   }
 
+  getMarkers() async {
+    QuerySnapshot snapshot = await timelineRef
+        .doc(widget.currentUser!.id)
+        .collection('timelinePosts')
+        .get();
+
+    Set<Marker> loadedMarkers = {};
+    snapshot.docs.forEach((doc) async {
+      Marker marker = await getMarker(Post.fromDocument(doc));
+      loadedMarkers.add(marker);
+    });
+
+    setState(() {
+      this.markers = loadedMarkers;
+    });
+  }
+
+  Future<BitmapDescriptor> getUserProfileIcon(String ownerId) async {
+    DocumentSnapshot doc = await usersRef.doc(ownerId).get();
+    User user = User.fromDocument(doc);
+    final int targetWidth = 60;
+    final BitmapDescriptor markerImage = await MapHelper.getMarkerImageFromUrl(
+        user.photoUrl,
+        targetWidth: targetWidth);
+
+    // final File markerImageFile =
+    //     await DefaultCacheManager().getSingleFile(user.photoUrl);
+    // final Uint8List markerImageBytes = await markerImageFile.readAsBytes();
+    // BitmapDescriptor bitMap = BitmapDescriptor.fromBytes(markerImageBytes);
+    return markerImage;
+  }
+
+  Future<Marker> getMarker(Post post) async {
+    BitmapDescriptor descriptor = await getUserProfileIcon(post.ownerId!);
+
+    return Marker(
+        markerId: MarkerId(post.postId!),
+        position: LatLng(post.lat!, post.long!),
+        icon: descriptor,
+        infoWindow:
+            InfoWindow(title: post.location, snippet: post.description));
+  }
+
+  // FutureBuilder buildMarkersToDraw() {
+  //   return FutureBuilder(
+  //       future: getMarkers(),
+  //       builder: (context, snapshot) {
+  //         if (!snapshot.hasData) {
+  //           return BadgeMap(markers: markers);
+  //         }
+  //         return BadgeMap(markers: markers);
+  //       });
+  // }
+
+  late GoogleMapController mapController;
+
+  final LatLng _center = const LatLng(45.5017, -73.5673);
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+
   Container buildSplashScreen() {
     return Container(
       // color: Theme.of(context).primaryColor.withOpacity(0.2),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Stack(
+        // mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          SvgPicture.asset(
-            'assets/images/upload.svg',
-            height: 260.0,
+          // SvgPicture.asset(
+          //   'assets/images/upload.svg',
+          //   height: 260.0,
+          // ),
+          GoogleMap(
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: CameraPosition(
+              target: _center,
+              zoom: 11.0,
+            ),
+            markers: markers,
           ),
+
           Padding(
-            padding: EdgeInsets.only(top: 20.0),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                primary: Theme.of(context).primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+            padding: EdgeInsets.only(bottom: 20.0),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: Theme.of(context).primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
                 ),
+                child: Icon(
+                  Icons.location_on,
+                  size: 35.0,
+                ),
+                onPressed: () => selectImage(context),
               ),
-              child: Text(
-                "Upload Image",
-                style: TextStyle(color: Colors.white, fontSize: 22.0),
-              ),
-              onPressed: () => selectImage(context),
             ),
           )
         ],
@@ -309,7 +397,7 @@ class _UploadState extends State<Upload>
     );
   }
 
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 
   @override
   Widget build(BuildContext context) {

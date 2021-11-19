@@ -156,7 +156,7 @@ class _HomeState extends State<Home> {
           BottomNavigationBarItem(icon: Icon(Icons.notifications_active)),
           BottomNavigationBarItem(
               icon: Icon(
-            Icons.photo_camera,
+            Icons.map,
             size: 35.0,
           )),
           BottomNavigationBarItem(icon: Icon(Icons.search)),
