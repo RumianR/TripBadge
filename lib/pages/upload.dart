@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:after_layout/after_layout.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -9,16 +10,15 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:trip_badge/helpers/map_helper.dart';
-import 'dart:typed_data';
 import 'dart:ui';
 import 'package:trip_badge/models/user.dart';
 import 'package:trip_badge/pages/home.dart';
-import 'package:trip_badge/widgets/badgemap.dart';
+import 'package:trip_badge/pages/post_screen.dart';
+import 'package:trip_badge/pages/profile.dart';
 import 'package:trip_badge/widgets/post.dart';
 import 'package:trip_badge/widgets/progress.dart';
 import 'package:image/image.dart' as Im;
 import 'package:uuid/uuid.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class Upload extends StatefulWidget {
   final User? currentUser;
@@ -29,8 +29,7 @@ class Upload extends StatefulWidget {
   _UploadState createState() => _UploadState();
 }
 
-class _UploadState extends State<Upload>
-    with AutomaticKeepAliveClientMixin<Upload> {
+class _UploadState extends State<Upload> with AfterLayoutMixin<Upload> {
   TextEditingController locationController = TextEditingController();
   TextEditingController captionController = TextEditingController();
 
@@ -40,12 +39,25 @@ class _UploadState extends State<Upload>
 
   double lat = -1.1;
   double long = -1.1;
-  Set<Marker> markers = {};
+  Set<Marker> markers = new Set();
 
   @override
   void initState() {
-    getMarkers();
+    // updateMarkers();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    mapController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void afterFirstLayout(BuildContext context) {
+    // Calling the same function "after layout" to resolve the issue.
+    getMarkers();
+    updateMarkers();
   }
 
   handleTakePhoto() async {
@@ -176,8 +188,51 @@ class _UploadState extends State<Upload>
     });
 
     setState(() {
-      this.markers = loadedMarkers;
+      markers = loadedMarkers;
     });
+  }
+
+  updateMarkers() async {
+    QuerySnapshot snapshot = await timelineRef
+        .doc(widget.currentUser!.id)
+        .collection('timelinePosts')
+        .get();
+
+    snapshot.docs.forEach((doc) async {
+      Post post = Post.fromDocument(doc);
+      if (markers
+              .where(((element) => element.mapsId.value == post.postId))
+              .length >
+          0) {
+        Marker marker = markers
+            .firstWhere((element) => element.mapsId.value == post.postId);
+        BitmapDescriptor descriptor = await getUserProfileIcon(post.ownerId!);
+        setState(() {
+          markers.remove(marker);
+          markers.add(Marker(
+              markerId: MarkerId(post.postId!),
+              position: LatLng(post.lat!, post.long!),
+              icon: descriptor,
+              infoWindow: InfoWindow(
+                  title: post.location,
+                  snippet: post.description,
+                  onTap: () =>
+                      showPost(context, post.postId!, post.ownerId!))));
+        });
+      }
+    });
+  }
+
+  showPost(context, String postId, String postOwnerId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PostScreen(
+          postId: postId,
+          userId: postOwnerId,
+        ),
+      ),
+    );
   }
 
   Future<BitmapDescriptor> getUserProfileIcon(String ownerId) async {
@@ -187,63 +242,39 @@ class _UploadState extends State<Upload>
     final BitmapDescriptor markerImage = await MapHelper.getMarkerImageFromUrl(
         user.photoUrl,
         targetWidth: targetWidth);
-
-    // final File markerImageFile =
-    //     await DefaultCacheManager().getSingleFile(user.photoUrl);
-    // final Uint8List markerImageBytes = await markerImageFile.readAsBytes();
-    // BitmapDescriptor bitMap = BitmapDescriptor.fromBytes(markerImageBytes);
     return markerImage;
   }
 
   Future<Marker> getMarker(Post post) async {
-    BitmapDescriptor descriptor = await getUserProfileIcon(post.ownerId!);
-
     return Marker(
         markerId: MarkerId(post.postId!),
         position: LatLng(post.lat!, post.long!),
-        icon: descriptor,
+        icon: BitmapDescriptor.defaultMarker,
         infoWindow:
             InfoWindow(title: post.location, snippet: post.description));
   }
-
-  // FutureBuilder buildMarkersToDraw() {
-  //   return FutureBuilder(
-  //       future: getMarkers(),
-  //       builder: (context, snapshot) {
-  //         if (!snapshot.hasData) {
-  //           return BadgeMap(markers: markers);
-  //         }
-  //         return BadgeMap(markers: markers);
-  //       });
-  // }
 
   late GoogleMapController mapController;
 
   final LatLng _center = const LatLng(45.5017, -73.5673);
 
   void _onMapCreated(GoogleMapController controller) {
+    // mapController.dispose();
     mapController = controller;
   }
 
-  Container buildSplashScreen() {
+  Container buildSplashScreen(Set<Marker> bitch) {
     return Container(
-      // color: Theme.of(context).primaryColor.withOpacity(0.2),
       child: Stack(
-        // mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          // SvgPicture.asset(
-          //   'assets/images/upload.svg',
-          //   height: 260.0,
-          // ),
           GoogleMap(
             onMapCreated: _onMapCreated,
             initialCameraPosition: CameraPosition(
               target: _center,
               zoom: 11.0,
             ),
-            markers: markers,
+            markers: bitch,
           ),
-
           Padding(
             padding: EdgeInsets.only(bottom: 20.0),
             child: Align(
@@ -397,11 +428,12 @@ class _UploadState extends State<Upload>
     );
   }
 
-  bool get wantKeepAlive => false;
-
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    return file == null ? buildSplashScreen() : buildUploadForm();
+    return file == null
+        ? markers.isEmpty
+            ? buildSplashScreen({})
+            : buildSplashScreen(markers)
+        : buildUploadForm();
   }
 }
