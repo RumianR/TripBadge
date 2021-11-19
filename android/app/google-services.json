@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "345454630318",
+    "project_id": "trip-badge",
+    "storage_bucket": "trip-badge.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:345454630318:android:f26d162b3a712f7c79e43f",
+        "android_client_info": {
+          "package_name": "com.rossnaims.trip_badge"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "345454630318-h9ri3fpf96oguh8vfho6prhs1qsgf3v8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rossnaims.trip_badge",
+            "certificate_hash": "b911f5320755fd749e062228c4b839101ac00bf5"
+          }
+        },
+        {
+          "client_id": "345454630318-k0ii5ihd8n5n11d5h2ntokbt2n1tn41l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbe-7K2YFkw7d7yjeCPu6lljLUqtF_jJo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "345454630318-k0ii5ihd8n5n11d5h2ntokbt2n1tn41l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
