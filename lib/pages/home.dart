@@ -40,19 +40,22 @@ class _HomeState extends State<Home> {
   bool isAuth = false;
   late PageController pageController;
   int pageIndex = 0;
+  bool handlingSignIn = false;
 
   @override
   void initState() {
     super.initState();
     pageController = PageController();
     // Detects when user is signed in
-    googleSignin.onCurrentUserChanged.listen((account) {
-      handleSignIn(account);
+    googleSignin.onCurrentUserChanged.listen((account) async {
+      await handleSignIn(account);
+
+      ;
     }, onError: (err) {
       print('Error signing in: $err');
     });
     // Reauth user when app is opened
-    googleSignin.signInSilently(suppressErrors: false).then((account) {
+    googleSignin.signInSilently(suppressErrors: false).then((account) async {
       handleSignIn(account);
     }).catchError((err) {
       print('Error signing in: $err');

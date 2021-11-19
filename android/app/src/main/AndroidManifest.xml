@@ -3,6 +3,10 @@
    <application
         android:label="trip_badge"
         android:icon="@mipmap/ic_launcher">
+
+        <!-- TODO: Add your Google Maps API key here -->
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyDbe-7K2YFkw7d7yjeCPu6lljLUqtF_jJo"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
