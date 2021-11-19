@@ -47,11 +47,11 @@ class _UploadState extends State<Upload> with AfterLayoutMixin<Upload> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    mapController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   mapController.dispose();
+  //   super.dispose();
+  // }
 
   @override
   void afterFirstLayout(BuildContext context) {
@@ -156,7 +156,7 @@ class _UploadState extends State<Upload> with AfterLayoutMixin<Upload> {
         context: parentContext,
         builder: (context) {
           return SimpleDialog(
-            title: Text("Create Post"),
+            title: Text("Pin a badge!"),
             children: <Widget>[
               SimpleDialogOption(
                 child: Text("Photo with Camera"),
