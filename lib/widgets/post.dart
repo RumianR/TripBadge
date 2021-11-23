@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 
 import 'package:animator/animator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -384,23 +385,39 @@ class _Post extends State<Post> {
                 onTap: handleLikePost,
                 child: Icon(isLiked! ? Icons.star : Icons.star_border,
                     size: 28.0, color: Theme.of(context).iconTheme.color)),
-            GestureDetector(
-                onTap: () => showComments(
-                      context,
-                      postId: postId,
-                      ownerId: ownerId,
-                      mediaUrl: mediaUrl,
-                    ),
-                child: Icon(Icons.comment,
-                    color: Theme.of(context).iconTheme.color)),
+            Padding(
+              padding: EdgeInsets.only(top: 2),
+              child: GestureDetector(
+                  onTap: () => showComments(
+                        context,
+                        postId: postId,
+                        ownerId: ownerId,
+                        mediaUrl: mediaUrl,
+                      ),
+                  child: Icon(Icons.comment,
+                      color: Theme.of(context).iconTheme.color)),
+            )
           ],
         ),
-        IconButton(
-            onPressed: null,
-            icon: Icon(
-              Icons.ios_share,
-              color: Theme.of(context).iconTheme.color,
-            ))
+        Row(
+          children: [
+            GestureDetector(
+                onTap: null,
+                child: Text(location!,
+                    style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                        fontSize: 15,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.grey))),
+            GestureDetector(
+                onTap: null,
+                child: IconButton(
+                    onPressed: null,
+                    icon: Icon(
+                      Icons.place,
+                      color: Theme.of(context).iconTheme.color,
+                    ))),
+          ],
+        )
       ],
     );
 
