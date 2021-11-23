@@ -49,6 +49,7 @@ dependencies:
   google_maps_flutter: ^2.1.1
   after_layout: ^1.1.0
   unicons: ^2.0.2
+  google_fonts: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -75,6 +76,7 @@ flutter:
     - family: Signatra
       fonts:
         - asset: assets/fonts/Signatra.ttf
+        - asset: assets/fonts/Helvetica.ttf
   assets:
     - assets/images/google_signin_button.png
     - assets/images/upload.svg

@@ -32,7 +32,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: header(context, titleText: "Activity Feed"),
+      appBar: header2(context, titleText: "Activity Feed"),
       body: Container(
           child: FutureBuilder(
         future: getActivityFeed(),

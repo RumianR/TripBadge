@@ -86,7 +86,7 @@ class CommentsState extends State<Comments> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: header(context, titleText: "Comments"),
+      appBar: header2(context, titleText: "Comments"),
       body: Column(
         children: <Widget>[
           Expanded(child: buildComments()),

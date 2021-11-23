@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-AppBar header(context,
+AppBar header1(context,
     {bool isAppTitle = false,
     String titleText = "",
     removeBackButton = false}) {
@@ -16,4 +16,16 @@ AppBar header(context,
     centerTitle: true,
     backgroundColor: Theme.of(context).colorScheme.secondary,
   );
+}
+
+AppBar header2(context, {String titleText = ""}) {
+  return AppBar(
+      centerTitle: false,
+      title: Text(
+        titleText,
+        style: TextStyle(
+            fontFamily: 'Helvetica', color: Colors.black, fontSize: 22),
+      ),
+      backgroundColor: Colors.white,
+      elevation: 0);
 }

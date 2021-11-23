@@ -4,14 +4,14 @@ import 'package:animator/animator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:trip_badge/models/user.dart';
 import 'package:trip_badge/pages/comments.dart';
 import 'package:trip_badge/pages/home.dart';
-import 'package:trip_badge/widgets/custom_image.dart';
 import 'package:trip_badge/widgets/progress.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-class TimelineV2 extends StatefulWidget {
+class Post extends StatefulWidget {
   final Function()? notifyParent;
   final String? postId;
   final String? ownerId;
@@ -22,9 +22,9 @@ class TimelineV2 extends StatefulWidget {
   final double? lat;
   final double? long;
   final dynamic likes;
-  final Timestamp? timestamp;
+  final Timestamp? timeStamp;
 
-  TimelineV2(
+  Post(
       {this.postId,
       this.ownerId,
       this.username,
@@ -34,12 +34,12 @@ class TimelineV2 extends StatefulWidget {
       this.likes,
       this.lat,
       this.long,
-      this.timestamp,
+      this.timeStamp,
       this.notifyParent});
 
-  factory TimelineV2.fromDocument(DocumentSnapshot doc, User user,
+  factory Post.fromDocument(DocumentSnapshot doc,
       {Function()? notifyParent = null}) {
-    return TimelineV2(
+    return Post(
         postId: doc['postId'],
         ownerId: doc['ownerId'],
         username: doc['username'],
@@ -49,7 +49,7 @@ class TimelineV2 extends StatefulWidget {
         likes: doc['likes'],
         lat: doc['lat'],
         long: doc['long'],
-        timestamp: doc['timestamp'],
+        timeStamp: doc['timestamp'],
         notifyParent: notifyParent);
   }
 
@@ -69,7 +69,7 @@ class TimelineV2 extends StatefulWidget {
   }
 
   @override
-  _TimelineV2 createState() => _TimelineV2(
+  _Post createState() => _Post(
         postId: this.postId,
         ownerId: this.ownerId,
         username: this.username,
@@ -78,10 +78,11 @@ class TimelineV2 extends StatefulWidget {
         mediaUrl: this.mediaUrl,
         likes: this.likes,
         likeCount: getLikeCount(this.likes),
+        timeStamp: this.timeStamp,
       );
 }
 
-class _TimelineV2 extends State<TimelineV2> {
+class _Post extends State<Post> {
   final String? currentUserId = currentUser?.id;
   final String? postId;
   final String? ownerId;
@@ -89,21 +90,22 @@ class _TimelineV2 extends State<TimelineV2> {
   final String? location;
   final String? description;
   final String? mediaUrl;
+  final Timestamp? timeStamp;
   int? likeCount;
   Map? likes;
   bool? isLiked;
   bool showHeart = false;
 
-  _TimelineV2({
-    this.postId,
-    this.ownerId,
-    this.username,
-    this.location,
-    this.description,
-    this.mediaUrl,
-    this.likes,
-    this.likeCount,
-  });
+  _Post(
+      {this.postId,
+      this.ownerId,
+      this.username,
+      this.location,
+      this.description,
+      this.mediaUrl,
+      this.likes,
+      this.likeCount,
+      this.timeStamp});
 
   handleDeletePost(BuildContext parentContext) {
     return showDialog(
@@ -246,17 +248,17 @@ class _TimelineV2 extends State<TimelineV2> {
           return ListTile(
             contentPadding: const EdgeInsets.all(0),
             leading: CircleAvatar(
-              radius: 30,
-              backgroundImage: CachedNetworkImageProvider(user.photoUrl),
-            ),
+                backgroundImage: CachedNetworkImageProvider(user.photoUrl),
+                backgroundColor: Colors.grey),
             title: Text(user.username,
                 style: Theme.of(context)
                     .textTheme
                     .bodyText1!
-                    .copyWith(fontSize: 18, fontWeight: FontWeight.w600)),
-            subtitle: Text(timeago.format(timestamp, allowFromNow: true),
+                    .copyWith(fontSize: 15, fontWeight: FontWeight.w600)),
+            subtitle: Text(
+                timeago.format(this.timeStamp!.toDate(), allowFromNow: true),
                 style: Theme.of(context).textTheme.bodyText2!.copyWith(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.normal,
                     color: Colors.grey)),
             trailing: isPostOwner
@@ -309,19 +311,22 @@ class _TimelineV2 extends State<TimelineV2> {
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
-          ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: CachedNetworkImage(
-                imageUrl: mediaUrl!,
-                height: 200,
-                width: MediaQuery.of(context).size.width,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Padding(
-                  child: CircularProgressIndicator(),
-                  padding: EdgeInsets.all(20),
-                ),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-              )),
+          Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: CachedNetworkImage(
+                  imageUrl: mediaUrl!,
+                  height: 200,
+                  width: MediaQuery.of(context).size.width,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Padding(
+                    child: CircularProgressIndicator(),
+                    padding: EdgeInsets.all(10),
+                  ),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                )),
+          ),
           showHeart
               ? Animator(
                   duration: Duration(milliseconds: 300),
@@ -332,9 +337,9 @@ class _TimelineV2 extends State<TimelineV2> {
                       Transform.scale(
                           scale: anim.value,
                           child: Icon(
-                            Icons.favorite,
+                            Icons.star,
                             size: 80.0,
-                            color: Colors.pink,
+                            color: Colors.yellow,
                           )),
                 )
               : Text(""),
@@ -386,8 +391,8 @@ class _TimelineV2 extends State<TimelineV2> {
                       ownerId: ownerId,
                       mediaUrl: mediaUrl,
                     ),
-                child:
-                    Icon(Icons.chat, color: Theme.of(context).iconTheme.color)),
+                child: Icon(Icons.comment,
+                    color: Theme.of(context).iconTheme.color)),
           ],
         ),
         IconButton(
@@ -470,15 +475,29 @@ class _TimelineV2 extends State<TimelineV2> {
   @override
   Widget build(BuildContext context) {
     isLiked = (likes![currentUserId] == true);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        buildPostHeader(),
-        buildDescription(),
-        buildPostImage(),
-        buildPostFooter(),
-      ],
-    );
+
+    return Card(
+        elevation: 0,
+        color: Theme.of(context).cardColor,
+        margin: const EdgeInsets.all(16),
+        child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              buildPostHeader(),
+              buildDescription(),
+              buildPostImage(),
+              buildPostFooter(),
+            ])));
+    // return Column(
+    //   mainAxisSize: MainAxisSize.min,
+    //   children: [
+    //     buildPostHeader(),
+    //     buildDescription(),
+    //     buildPostImage(),
+    //     buildPostFooter(),
+    //   ],
+    // );
   }
 }
 

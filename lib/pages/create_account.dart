@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:trip_badge/widgets/header.dart';
 
@@ -30,8 +28,7 @@ class _CreateAccountState extends State<CreateAccount> {
   Widget build(BuildContext parentContext) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: header(context,
-          titleText: "Set up your profile", removeBackButton: true),
+      appBar: header2(context, titleText: "Set up your profile"),
       body: ListView(
         children: <Widget>[
           Container(

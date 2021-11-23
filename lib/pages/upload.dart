@@ -14,7 +14,6 @@ import 'dart:ui';
 import 'package:trip_badge/models/user.dart';
 import 'package:trip_badge/pages/home.dart';
 import 'package:trip_badge/pages/post_screen.dart';
-import 'package:trip_badge/pages/profile.dart';
 import 'package:trip_badge/widgets/post.dart';
 import 'package:trip_badge/widgets/progress.dart';
 import 'package:image/image.dart' as Im;
