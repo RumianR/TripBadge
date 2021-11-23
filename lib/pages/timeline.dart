@@ -59,7 +59,7 @@ class _TimelineState extends State<Timeline> {
       return buildUsersToFollow();
     }
 
-    return ListView(children: posts!);
+    return ListView(physics: BouncingScrollPhysics(), children: posts!);
   }
 
   getFollowing() async {
@@ -133,7 +133,7 @@ class _TimelineState extends State<Timeline> {
   @override
   Widget build(context) {
     return Scaffold(
-      appBar: header2(context, titleText: "Timeline"),
+      appBar: header2(context, titleText: "TripFeed"),
       body: RefreshIndicator(
         onRefresh: () => getTimeline(),
         child: buildTimeline(),

@@ -322,7 +322,9 @@ class _Post extends State<Post> {
                   width: MediaQuery.of(context).size.width,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Padding(
-                    child: CircularProgressIndicator(),
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
                     padding: EdgeInsets.all(10),
                   ),
                   errorWidget: (context, url, error) => Icon(Icons.error),
@@ -384,7 +386,10 @@ class _Post extends State<Post> {
             GestureDetector(
                 onTap: handleLikePost,
                 child: Icon(isLiked! ? Icons.star : Icons.star_border,
-                    size: 28.0, color: Theme.of(context).iconTheme.color)),
+                    size: 28.0,
+                    color: !isLiked!
+                        ? Theme.of(context).iconTheme.color
+                        : Colors.yellow[700])),
             Padding(
               padding: EdgeInsets.only(top: 2),
               child: GestureDetector(
@@ -414,7 +419,7 @@ class _Post extends State<Post> {
                     onPressed: null,
                     icon: Icon(
                       Icons.place,
-                      color: Theme.of(context).iconTheme.color,
+                      color: Theme.of(context).primaryColor,
                     ))),
           ],
         )
