@@ -48,6 +48,7 @@ dependencies:
   geocoding: ^2.0.1
   google_maps_flutter: ^2.1.1
   after_layout: ^1.1.0
+  unicons: ^2.0.2
 
 dev_dependencies:
   flutter_test:

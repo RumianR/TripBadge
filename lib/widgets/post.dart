@@ -9,8 +9,9 @@ import 'package:trip_badge/pages/comments.dart';
 import 'package:trip_badge/pages/home.dart';
 import 'package:trip_badge/widgets/custom_image.dart';
 import 'package:trip_badge/widgets/progress.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
-class Post extends StatefulWidget {
+class TimelineV2 extends StatefulWidget {
   final Function()? notifyParent;
   final String? postId;
   final String? ownerId;
@@ -21,8 +22,9 @@ class Post extends StatefulWidget {
   final double? lat;
   final double? long;
   final dynamic likes;
+  final Timestamp? timestamp;
 
-  Post(
+  TimelineV2(
       {this.postId,
       this.ownerId,
       this.username,
@@ -32,11 +34,12 @@ class Post extends StatefulWidget {
       this.likes,
       this.lat,
       this.long,
+      this.timestamp,
       this.notifyParent});
 
-  factory Post.fromDocument(DocumentSnapshot doc,
+  factory TimelineV2.fromDocument(DocumentSnapshot doc, User user,
       {Function()? notifyParent = null}) {
-    return Post(
+    return TimelineV2(
         postId: doc['postId'],
         ownerId: doc['ownerId'],
         username: doc['username'],
@@ -46,6 +49,7 @@ class Post extends StatefulWidget {
         likes: doc['likes'],
         lat: doc['lat'],
         long: doc['long'],
+        timestamp: doc['timestamp'],
         notifyParent: notifyParent);
   }
 
@@ -65,7 +69,7 @@ class Post extends StatefulWidget {
   }
 
   @override
-  _PostState createState() => _PostState(
+  _TimelineV2 createState() => _TimelineV2(
         postId: this.postId,
         ownerId: this.ownerId,
         username: this.username,
@@ -77,7 +81,7 @@ class Post extends StatefulWidget {
       );
 }
 
-class _PostState extends State<Post> {
+class _TimelineV2 extends State<TimelineV2> {
   final String? currentUserId = currentUser?.id;
   final String? postId;
   final String? ownerId;
@@ -90,7 +94,7 @@ class _PostState extends State<Post> {
   bool? isLiked;
   bool showHeart = false;
 
-  _PostState({
+  _TimelineV2({
     this.postId,
     this.ownerId,
     this.username,
@@ -156,41 +160,6 @@ class _PostState extends State<Post> {
     });
 
     widget.notifyParent!();
-  }
-
-  FutureBuilder buildPostHeader() {
-    return FutureBuilder(
-        future: usersRef.doc(ownerId).get(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return circularProgress();
-          }
-          User user = User.fromDocument(snapshot.data);
-          bool isPostOwner = currentUserId == ownerId;
-
-          return ListTile(
-            leading: CircleAvatar(
-                backgroundImage: CachedNetworkImageProvider(user.photoUrl),
-                backgroundColor: Colors.grey),
-            title: GestureDetector(
-              onTap: () => print('showing profile'),
-              child: Text(
-                user.username,
-                style:
-                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-              ),
-            ),
-            subtitle: Text(
-              location!,
-            ),
-            trailing: isPostOwner
-                ? IconButton(
-                    onPressed: () => handleDeletePost(context),
-                    icon: Icon(Icons.more_vert),
-                  )
-                : Text(''),
-          );
-        });
   }
 
   addLikeToActivityFeed() {
@@ -264,13 +233,95 @@ class _PostState extends State<Post> {
     }
   }
 
+  FutureBuilder buildPostHeader() {
+    return FutureBuilder(
+        future: usersRef.doc(ownerId).get(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return circularProgress();
+          }
+          User user = User.fromDocument(snapshot.data);
+          bool isPostOwner = currentUserId == ownerId;
+
+          return ListTile(
+            contentPadding: const EdgeInsets.all(0),
+            leading: CircleAvatar(
+              radius: 30,
+              backgroundImage: CachedNetworkImageProvider(user.photoUrl),
+            ),
+            title: Text(user.username,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText1!
+                    .copyWith(fontSize: 18, fontWeight: FontWeight.w600)),
+            subtitle: Text(timeago.format(timestamp, allowFromNow: true),
+                style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.grey)),
+            trailing: isPostOwner
+                ? IconButton(
+                    onPressed: () => handleDeletePost(context),
+                    icon: Icon(
+                      Icons.more_horiz,
+                      color: Theme.of(context).iconTheme.color,
+                    ))
+                : Text(''),
+          );
+
+          // return ListTile(
+          //   leading: CircleAvatar(
+          //       backgroundImage: CachedNetworkImageProvider(user.photoUrl),
+          //       backgroundColor: Colors.grey),
+          //   title: GestureDetector(
+          //     onTap: () => print('showing profile'),
+          //     child: Text(
+          //       user.username,
+          //       style:
+          //           TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          //     ),
+          //   ),
+          //   subtitle: Text(
+          //     location!,
+          //   ),
+          //   trailing: isPostOwner
+          //       ? IconButton(
+          //           onPressed: () => handleDeletePost(context),
+          //           icon: Icon(Icons.more_vert),
+          //         )
+          //       : Text(''),
+          // );
+        });
+  }
+
+  buildDescription() {
+    return description!.isEmpty
+        ? const SizedBox.shrink()
+        : Text(
+            description!,
+            textAlign: TextAlign.left,
+          );
+  }
+
   buildPostImage() {
     return GestureDetector(
       onDoubleTap: handleLikePost,
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
-          cachedNetworkImage(mediaUrl!),
+          ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: CachedNetworkImage(
+                imageUrl: mediaUrl!,
+                height: 200,
+                width: MediaQuery.of(context).size.width,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Padding(
+                  child: CircularProgressIndicator(),
+                  padding: EdgeInsets.all(20),
+                ),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+              )),
           showHeart
               ? Animator(
                   duration: Duration(milliseconds: 300),
@@ -290,75 +341,130 @@ class _PostState extends State<Post> {
         ],
       ),
     );
+
+    // return GestureDetector(
+    //   onDoubleTap: handleLikePost,
+    //   child: Stack(
+    //     alignment: Alignment.center,
+    //     children: <Widget>[
+    //       cachedNetworkImage(mediaUrl!),
+    //       showHeart
+    //           ? Animator(
+    //               duration: Duration(milliseconds: 300),
+    //               tween: Tween(begin: 0.8, end: 1.4),
+    //               curve: Curves.elasticOut,
+    //               cycles: 0,
+    //               builder: (context, AnimatorState anim, wid) =>
+    //                   Transform.scale(
+    //                       scale: anim.value,
+    //                       child: Icon(
+    //                         Icons.favorite,
+    //                         size: 80.0,
+    //                         color: Colors.pink,
+    //                       )),
+    //             )
+    //           : Text(""),
+    //     ],
+    //   ),
+    // );
   }
 
   buildPostFooter() {
-    return Column(
-      children: <Widget>[
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Padding(padding: EdgeInsets.only(top: 40.0, left: 20.0)),
+          children: [
             GestureDetector(
-              onTap: handleLikePost,
-              child: Icon(
-                isLiked! ? Icons.favorite : Icons.favorite_border,
-                size: 28.0,
-                color: Colors.pink,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(right: 20.0),
-            ),
+                onTap: handleLikePost,
+                child: Icon(isLiked! ? Icons.star : Icons.star_border,
+                    size: 28.0, color: Theme.of(context).iconTheme.color)),
             GestureDetector(
-              onTap: () => showComments(
-                context,
-                postId: postId,
-                ownerId: ownerId,
-                mediaUrl: mediaUrl,
-              ),
-              child: Icon(
-                Icons.chat,
-                size: 28.0,
-                color: Colors.blue[900],
-              ),
-            ),
+                onTap: () => showComments(
+                      context,
+                      postId: postId,
+                      ownerId: ownerId,
+                      mediaUrl: mediaUrl,
+                    ),
+                child:
+                    Icon(Icons.chat, color: Theme.of(context).iconTheme.color)),
           ],
         ),
-        Row(
-          children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(left: 20.0),
-              child: Text(
-                "$likeCount likes",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            )
-          ],
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(left: 20.0),
-              child: Text(
-                "$username ",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Expanded(
-              child: Text(description!),
-            ),
-          ],
-        )
+        IconButton(
+            onPressed: null,
+            icon: Icon(
+              Icons.ios_share,
+              color: Theme.of(context).iconTheme.color,
+            ))
       ],
     );
+
+    // return Column(
+    //   children: <Widget>[
+    //     Row(
+    //       mainAxisAlignment: MainAxisAlignment.start,
+    //       children: <Widget>[
+    //         Padding(padding: EdgeInsets.only(top: 40.0, left: 20.0)),
+    //         GestureDetector(
+    //           onTap: handleLikePost,
+    //           child: Icon(
+    //             isLiked! ? Icons.favorite : Icons.favorite_border,
+    //             size: 28.0,
+    //             color: Colors.pink,
+    //           ),
+    //         ),
+    //         Padding(
+    //           padding: EdgeInsets.only(right: 20.0),
+    //         ),
+    //         GestureDetector(
+    //           onTap: () => showComments(
+    //             context,
+    //             postId: postId,
+    //             ownerId: ownerId,
+    //             mediaUrl: mediaUrl,
+    //           ),
+    //           child: Icon(
+    //             Icons.chat,
+    //             size: 28.0,
+    //             color: Colors.blue[900],
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //     Row(
+    //       children: <Widget>[
+    //         Container(
+    //           margin: EdgeInsets.only(left: 20.0),
+    //           child: Text(
+    //             "$likeCount likes",
+    //             style: TextStyle(
+    //               color: Colors.black,
+    //               fontWeight: FontWeight.bold,
+    //             ),
+    //           ),
+    //         )
+    //       ],
+    //     ),
+    //     Row(
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: <Widget>[
+    //         Container(
+    //           margin: EdgeInsets.only(left: 20.0),
+    //           child: Text(
+    //             "$username ",
+    //             style: TextStyle(
+    //               color: Colors.black,
+    //               fontWeight: FontWeight.bold,
+    //             ),
+    //           ),
+    //         ),
+    //         Expanded(
+    //           child: Text(description!),
+    //         ),
+    //       ],
+    //     )
+    //   ],
+    // );
   }
 
   @override
@@ -368,6 +474,7 @@ class _PostState extends State<Post> {
       mainAxisSize: MainAxisSize.min,
       children: [
         buildPostHeader(),
+        buildDescription(),
         buildPostImage(),
         buildPostFooter(),
       ],
