@@ -255,7 +255,7 @@ class _Post extends State<Post> {
                 style: Theme.of(context)
                     .textTheme
                     .bodyText1!
-                    .copyWith(fontSize: 15, fontWeight: FontWeight.w600)),
+                    .copyWith(fontSize: 17, fontWeight: FontWeight.w600)),
             subtitle: Text(
                 timeago.format(this.timeStamp!.toDate(), allowFromNow: true),
                 style: Theme.of(context).textTheme.bodyText2!.copyWith(
@@ -399,8 +399,7 @@ class _Post extends State<Post> {
                         ownerId: ownerId,
                         mediaUrl: mediaUrl,
                       ),
-                  child: Icon(Icons.comment,
-                      color: Theme.of(context).iconTheme.color)),
+                  child: Icon(Icons.comment, color: Colors.teal)),
             )
           ],
         ),

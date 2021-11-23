@@ -150,21 +150,44 @@ class _HomeState extends State<Home> {
       bottomNavigationBar: CupertinoTabBar(
         currentIndex: pageIndex,
         onTap: onTapBottomNav,
-        activeColor: Theme.of(context).primaryColor,
+        activeColor: getActiveColor(pageIndex),
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.whatshot)),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications_active)),
+          BottomNavigationBarItem(
+              icon: Icon(
+            Icons.notifications_active,
+          )),
           BottomNavigationBarItem(
               icon: Icon(
             Icons.map,
             size: 35.0,
           )),
-          BottomNavigationBarItem(icon: Icon(Icons.search)),
-          BottomNavigationBarItem(icon: Icon(Icons.account_circle))
+          BottomNavigationBarItem(
+              icon: Icon(
+            Icons.search,
+          )),
+          BottomNavigationBarItem(
+              icon: Icon(
+            Icons.account_circle,
+          ))
         ],
       ),
     );
     // return ElevatedButton(onPressed: logout, child: Text('Logout'));
+  }
+
+  getActiveColor(pageIndex) {
+    if (pageIndex == 0) {
+      return Theme.of(context).primaryColor;
+    } else if (pageIndex == 1) {
+      return Colors.yellow[800];
+    } else if (pageIndex == 2) {
+      return Colors.green;
+    } else if (pageIndex == 3) {
+      return Colors.blue;
+    } else if (pageIndex == 4) {
+      return Colors.pink;
+    }
   }
 
   // Widget buildAuthScreen() {

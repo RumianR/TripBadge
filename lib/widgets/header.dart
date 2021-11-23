@@ -24,7 +24,10 @@ AppBar header2(context, {String titleText = ""}) {
       title: Text(
         titleText,
         style: TextStyle(
-            fontFamily: 'Helvetica', color: Colors.black, fontSize: 22),
+            fontFamily: 'Helvetica',
+            color: Colors.black,
+            fontSize: 22,
+            fontWeight: FontWeight.bold),
       ),
       backgroundColor: Colors.white,
       elevation: 0);
