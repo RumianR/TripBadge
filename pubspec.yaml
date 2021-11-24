@@ -50,6 +50,7 @@ dependencies:
   after_layout: ^1.1.0
   unicons: ^2.0.2
   google_fonts: ^2.1.0
+  syncfusion_flutter_maps: ^19.3.55-beta
 
 dev_dependencies:
   flutter_test:
@@ -83,6 +84,8 @@ flutter:
     - assets/images/search.svg
     - assets/images/activity_feed.svg
     - assets/images/no_content.svg
+    - assets/geojsons/australia.json
+    - assets/geojsons/custom.json
   
 
   # To add assets to your application, add an assets section, like this:

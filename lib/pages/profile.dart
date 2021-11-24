@@ -8,6 +8,7 @@ import 'package:trip_badge/pages/home.dart';
 import 'package:trip_badge/widgets/header.dart';
 import 'package:trip_badge/widgets/post.dart';
 import 'package:trip_badge/widgets/post_tile.dart';
+import 'package:trip_badge/widgets/profile_map.dart';
 import 'package:trip_badge/widgets/progress.dart';
 
 class Profile extends StatefulWidget {
@@ -242,22 +243,23 @@ class _ProfileState extends State<Profile> {
         ),
       );
     } else if (postOrientation == "grid") {
-      List<GridTile> gridTiles = [];
-      posts.forEach((post) {
-        gridTiles.add(GridTile(
-          child: PostTile(post: post),
-        ));
-      });
+      return MyHomePage();
+      //   List<GridTile> gridTiles = [];
+      //   posts.forEach((post) {
+      //     gridTiles.add(GridTile(
+      //       child: PostTile(post: post),
+      //     ));
+      //   });
 
-      return GridView.count(
-        crossAxisCount: 3,
-        childAspectRatio: 1.0,
-        mainAxisSpacing: 1.5,
-        crossAxisSpacing: 1.5,
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        children: gridTiles,
-      );
+      //   return GridView.count(
+      //     crossAxisCount: 3,
+      //     childAspectRatio: 1.0,
+      //     mainAxisSpacing: 1.5,
+      //     crossAxisSpacing: 1.5,
+      //     shrinkWrap: true,
+      //     physics: NeverScrollableScrollPhysics(),
+      //     children: gridTiles,
+      //   );
     } else if (postOrientation == "list") {
       return Column(
         children: posts,
@@ -267,16 +269,16 @@ class _ProfileState extends State<Profile> {
 
   Container buildButton({required String text, required Function() function}) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 15),
+      // padding: EdgeInsets.symmetric(vertical: 2, horizontal: 15),
       child: TextButton(
         child: Text(text,
             style: TextStyle(
-                color: isFollowing ? Colors.black : Colors.blue, fontSize: 20)),
+                color: isFollowing ? Colors.black : Colors.blue, fontSize: 15)),
         onPressed: function,
       ),
       decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(5)),
+          borderRadius: BorderRadius.circular(10)),
     );
 
     // return Container(
@@ -390,8 +392,8 @@ class _ProfileState extends State<Profile> {
             children: [
               // profile photo
               Container(
-                height: 120,
-                width: 120,
+                height: 100,
+                width: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   image: DecorationImage(
@@ -433,7 +435,7 @@ class _ProfileState extends State<Profile> {
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 24),
+                                fontSize: 20),
                           ),
                           SizedBox(
                             height: 5,
@@ -455,7 +457,7 @@ class _ProfileState extends State<Profile> {
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 24),
+                                fontSize: 20),
                           ),
                           SizedBox(
                             height: 5,
@@ -478,7 +480,7 @@ class _ProfileState extends State<Profile> {
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 24),
+                                fontSize: 20),
                           ),
                           SizedBox(
                             height: 5,
@@ -523,7 +525,7 @@ class _ProfileState extends State<Profile> {
       children: <Widget>[
         IconButton(
             onPressed: () => setPostOrientation("grid"),
-            icon: Icon(Icons.grid_on),
+            icon: Icon(Icons.public),
             color: postOrientation == "grid"
                 ? Theme.of(context).primaryColor
                 : Colors.grey),
