@@ -29,6 +29,22 @@ AppBar header2(context, {String titleText = ""}) {
             fontSize: 22,
             fontWeight: FontWeight.bold),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
       elevation: 0);
+}
+
+AppBar profileAppBar(context,
+    {String username = "", removeBackButton = false}) {
+  return AppBar(
+    title: Text(username, style: TextStyle(color: Colors.black)),
+    backgroundColor: Colors.transparent,
+    automaticallyImplyLeading: removeBackButton ? false : true,
+    elevation: 0,
+    leading: removeBackButton
+        ? Icon(Icons.person, color: Colors.black)
+        : IconButton(
+            icon: (Icon(Icons.arrow_back_ios_new, color: Colors.black)),
+            onPressed: () => Navigator.pop(context),
+          ),
+  );
 }

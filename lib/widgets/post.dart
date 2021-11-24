@@ -1,14 +1,12 @@
 import 'dart:async';
-import 'dart:ffi';
-
 import 'package:animator/animator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:trip_badge/models/user.dart';
 import 'package:trip_badge/pages/comments.dart';
 import 'package:trip_badge/pages/home.dart';
+import 'package:trip_badge/pages/profile.dart';
 import 'package:trip_badge/widgets/progress.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -236,6 +234,18 @@ class _Post extends State<Post> {
     }
   }
 
+  showProfile(BuildContext context, {String? profileId}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Profile(
+          profileId: profileId,
+          removeBackArrowFromAppbar: false,
+        ),
+      ),
+    );
+  }
+
   FutureBuilder buildPostHeader() {
     return FutureBuilder(
         future: usersRef.doc(ownerId).get(),
@@ -248,14 +258,20 @@ class _Post extends State<Post> {
 
           return ListTile(
             contentPadding: const EdgeInsets.all(0),
-            leading: CircleAvatar(
-                backgroundImage: CachedNetworkImageProvider(user.photoUrl),
-                backgroundColor: Colors.grey),
-            title: Text(user.username,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyText1!
-                    .copyWith(fontSize: 17, fontWeight: FontWeight.w600)),
+            leading: GestureDetector(
+              onTap: () => showProfile(context, profileId: user.id),
+              child: CircleAvatar(
+                  backgroundImage: CachedNetworkImageProvider(user.photoUrl),
+                  backgroundColor: Colors.grey),
+            ),
+            title: GestureDetector(
+              onTap: () => showProfile(context, profileId: user.id),
+              child: Text(user.username,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText1!
+                      .copyWith(fontSize: 17, fontWeight: FontWeight.w600)),
+            ),
             subtitle: Text(
                 timeago.format(this.timeStamp!.toDate(), allowFromNow: true),
                 style: Theme.of(context).textTheme.bodyText2!.copyWith(

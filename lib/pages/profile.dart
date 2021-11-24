@@ -12,8 +12,9 @@ import 'package:trip_badge/widgets/progress.dart';
 
 class Profile extends StatefulWidget {
   final String? profileId;
+  final bool? removeBackArrowFromAppbar;
 
-  Profile({this.profileId});
+  Profile({this.profileId, this.removeBackArrowFromAppbar = true});
 
   @override
   _ProfileState createState() => _ProfileState();
@@ -266,29 +267,42 @@ class _ProfileState extends State<Profile> {
 
   Container buildButton({required String text, required Function() function}) {
     return Container(
-      padding: EdgeInsets.only(top: 2.0),
+      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 15),
       child: TextButton(
-        onPressed: function,
-        child: Container(
-          width: 250.0,
-          height: 27.0,
-          child: Text(
-            text,
+        child: Text(text,
             style: TextStyle(
-              color: isFollowing ? Colors.black : Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-              color: isFollowing ? Colors.white : Colors.blue,
-              border: Border.all(
-                color: isFollowing ? Colors.grey : Colors.blue,
-              ),
-              borderRadius: BorderRadius.circular(5.0)),
-        ),
+                color: isFollowing ? Colors.black : Colors.blue, fontSize: 20)),
+        onPressed: function,
       ),
+      decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(5)),
     );
+
+    // return Container(
+    //   padding: EdgeInsets.only(top: 2.0),
+    //   child: TextButton(
+    //     onPressed: function,
+    //     child: Container(
+    //       width: 250.0,
+    //       height: 27.0,
+    //       child: Text(
+    //         text,
+    //         style: TextStyle(
+    //           color: isFollowing ? Colors.black : Colors.white,
+    //           fontWeight: FontWeight.bold,
+    //         ),
+    //       ),
+    //       alignment: Alignment.center,
+    //       decoration: BoxDecoration(
+    //           color: isFollowing ? Colors.white : Colors.blue,
+    //           border: Border.all(
+    //             color: isFollowing ? Colors.grey : Colors.blue,
+    //           ),
+    //           borderRadius: BorderRadius.circular(5.0)),
+    //     ),
+    //   ),
+    // );
   }
 
   FutureBuilder buildProfileHeader() {
@@ -363,6 +377,140 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  FutureBuilder buildProfileHeader2() {
+    return FutureBuilder(
+        future: usersRef.doc(widget.profileId).get(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return circularProgress();
+          }
+          User user = User.fromDocument(snapshot.data);
+
+          return Column(
+            children: [
+              // profile photo
+              Container(
+                height: 120,
+                width: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: CachedNetworkImageProvider(user.photoUrl),
+                  ),
+                ),
+              ),
+              // username
+              Padding(
+                padding: const EdgeInsets.only(top: 20, bottom: 8),
+                child: Text(
+                  user.username,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
+                ),
+              ),
+
+              // bio
+              Text(
+                user.bio,
+                style: TextStyle(
+                  color: Colors.grey[700],
+                ),
+              ),
+              SizedBox(height: 15),
+              // number of following, followers, likes
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Container(
+                      alignment: Alignment.centerRight,
+                      child: Column(
+                        children: [
+                          Text(
+                            followingCount.toString(),
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            'Following',
+                            style: TextStyle(color: Colors.grey, fontSize: 15),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Text(
+                            followerCount.toString(),
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            'Followers',
+                            style: TextStyle(color: Colors.grey, fontSize: 15),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      child: Column(
+                        children: [
+                          Text(
+                            postCount.toString(),
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '  Pins  ',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 15),
+              // buttons -> edit profile, insta links, bookmark
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  buildProfileButton(),
+                ],
+              ),
+
+              SizedBox(height: 15),
+            ],
+          );
+        });
+  }
+
   setPostOrientation(String postOrientation) {
     setState(() {
       this.postOrientation = postOrientation;
@@ -389,13 +537,32 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  FutureBuilder buildProfileAppBar() {
+    return FutureBuilder(
+        future: usersRef.doc(widget.profileId).get(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return profileAppBar(context,
+                username: "",
+                removeBackButton: widget.removeBackArrowFromAppbar);
+          }
+          User user = User.fromDocument(snapshot.data);
+          return profileAppBar(context,
+              username: user.displayName,
+              removeBackButton: widget.removeBackArrowFromAppbar);
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: header2(context, titleText: "Profile"),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: buildProfileAppBar(),
+      ),
       body: ListView(
         children: [
-          buildProfileHeader(),
+          buildProfileHeader2(),
           Divider(
             height: 0.0,
           ),
