@@ -243,7 +243,7 @@ class _ProfileState extends State<Profile> {
         ),
       );
     } else if (postOrientation == "grid") {
-      return MyHomePage();
+      return Expanded(child: MyHomePage());
       //   List<GridTile> gridTiles = [];
       //   posts.forEach((post) {
       //     gridTiles.add(GridTile(
@@ -535,22 +535,29 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
+          preferredSize: const Size.fromHeight(45),
           child: buildProfileAppBar(),
         ),
-        body: Column(
-          children: [
-            buildProfileHeader2(),
-            Divider(
-              height: 0.0,
-            ),
-            buildTogglePostOrientation(),
-            Divider(
-              height: 0.0,
-            ),
-            buildProfilePosts(),
-          ],
+        body: SingleChildScrollView(
+          physics: NeverScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              buildProfileHeader2(),
+              Divider(
+                height: 0.0,
+              ),
+              buildTogglePostOrientation(),
+              Divider(
+                height: 0.0,
+              ),
+              Container(
+                height: 300,
+                child: buildProfilePosts(),
+              ),
+            ],
+          ),
         ));
   }
 }

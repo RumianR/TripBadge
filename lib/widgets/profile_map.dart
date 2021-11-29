@@ -45,24 +45,22 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.only(left: 15, right: 15),
-        child: Container(
-          height: 300,
-          child: Center(
-            child: SfMaps(
-              layers: <MapShapeLayer>[
-                MapShapeLayer(
-                  source: _mapSource,
-                  zoomPanBehavior: _zoomPanBehavior,
-                  loadingBuilder: (context) => CircularProgressIndicator(),
-                  showDataLabels: false,
-                  // dataLabelSettings: MapDataLabelSettings(
-                  //     textStyle: TextStyle(color: Colors.black, fontSize: 13)),
-                ),
-              ],
+      padding: EdgeInsets.only(left: 5, right: 5),
+      child: Center(
+        child: SfMaps(
+          layers: <MapShapeLayer>[
+            MapShapeLayer(
+              source: _mapSource,
+              zoomPanBehavior: _zoomPanBehavior,
+              loadingBuilder: (context) => CircularProgressIndicator(),
+              showDataLabels: false,
+              // dataLabelSettings: MapDataLabelSettings(
+              //     textStyle: TextStyle(color: Colors.black, fontSize: 13)),
             ),
-          ),
-        ));
+          ],
+        ),
+      ),
+    );
   }
 }
 
