@@ -243,7 +243,7 @@ class _ProfileState extends State<Profile> {
         ),
       );
     } else if (postOrientation == "grid") {
-      return Expanded(child: MyHomePage());
+      return MyHomePage();
       //   List<GridTile> gridTiles = [];
       //   posts.forEach((post) {
       //     gridTiles.add(GridTile(
@@ -261,10 +261,9 @@ class _ProfileState extends State<Profile> {
       //     children: gridTiles,
       //   );
     } else if (postOrientation == "list") {
-      return Expanded(
-          child: ListView(
+      return Column(
         children: posts,
-      ));
+      );
     }
   }
 
@@ -540,24 +539,18 @@ class _ProfileState extends State<Profile> {
           preferredSize: const Size.fromHeight(45),
           child: buildProfileAppBar(),
         ),
-        body: SingleChildScrollView(
-          physics: NeverScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              buildProfileHeader2(),
-              Divider(
-                height: 0.0,
-              ),
-              buildTogglePostOrientation(),
-              Divider(
-                height: 0.0,
-              ),
-              Container(
-                height: 300,
-                child: buildProfilePosts(),
-              ),
-            ],
-          ),
+        body: ListView(
+          children: [
+            buildProfileHeader2(),
+            Divider(
+              height: 0.0,
+            ),
+            buildTogglePostOrientation(),
+            Divider(
+              height: 0.0,
+            ),
+            buildProfilePosts(),
+          ],
         ));
   }
 }
