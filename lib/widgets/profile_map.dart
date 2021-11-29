@@ -16,27 +16,29 @@ class _MyHomePageState extends State<MyHomePage> {
 
   late List<Model> _data;
   late MapShapeSource _mapSource;
+  late MapZoomPanBehavior _zoomPanBehavior;
 
   @override
   void initState() {
     _data = const <Model>[
-      Model("North America", Colors.pinkAccent),
-      Model("South America", Colors.deepPurpleAccent),
-      Model("Europe", Colors.deepPurpleAccent),
-      Model("Asia", Colors.deepPurpleAccent),
-      Model("Africa", Colors.deepPurpleAccent),
-      Model("Antarctica", Colors.deepPurpleAccent),
-      Model("Oceania", Colors.deepPurpleAccent)
+      Model("North America", "NA", Colors.teal),
+      Model("South America", "SA", Colors.red),
+      Model("Europe", "EUR", Colors.pink),
+      Model("Asia", "ASIA", Colors.lightGreen),
+      Model("Africa", "AFRI", Colors.orange),
+      Model("Australia", "AUS", Colors.yellow)
     ];
 
     _mapSource = MapShapeSource.asset(
-      'assets/geojsons/custom.json',
-      shapeDataField: 'continent',
+      'assets/geojsons/continents.json',
+      shapeDataField: 'CONTINENT',
       dataCount: _data.length,
       primaryValueMapper: (int index) => _data[index].continent,
-      dataLabelMapper: (int index) => _data[index].continent,
+      // dataLabelMapper: (int index) => _data[index].label,
       shapeColorValueMapper: (int index) => _data[index].color,
     );
+
+    _zoomPanBehavior = MapZoomPanBehavior();
     super.initState();
   }
 
@@ -51,13 +53,11 @@ class _MyHomePageState extends State<MyHomePage> {
               layers: <MapShapeLayer>[
                 MapShapeLayer(
                   source: _mapSource,
+                  zoomPanBehavior: _zoomPanBehavior,
                   loadingBuilder: (context) => CircularProgressIndicator(),
-                  showDataLabels: true,
-                  dataLabelSettings: MapDataLabelSettings(
-                      textStyle: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17)),
+                  showDataLabels: false,
+                  // dataLabelSettings: MapDataLabelSettings(
+                  //     textStyle: TextStyle(color: Colors.black, fontSize: 13)),
                 ),
               ],
             ),
@@ -67,8 +67,9 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class Model {
-  const Model(this.continent, this.color);
+  const Model(this.continent, this.label, this.color);
 
   final String continent;
+  final String label;
   final Color color;
 }

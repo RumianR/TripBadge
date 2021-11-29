@@ -33,10 +33,10 @@ AppBar header2(context, {String titleText = ""}) {
       elevation: 0);
 }
 
-AppBar profileAppBar(context,
+AppBar profileAppBar(context, VoidCallback onSettingsClick,
     {String username = "", removeBackButton = false}) {
   return AppBar(
-    title: Text(username, style: TextStyle(color: Colors.black)),
+    title: Text(username, style: TextStyle(color: Colors.black, fontSize: 17)),
     backgroundColor: Colors.transparent,
     automaticallyImplyLeading: removeBackButton ? false : true,
     elevation: 0,
@@ -46,5 +46,17 @@ AppBar profileAppBar(context,
             icon: (Icon(Icons.arrow_back_ios_new, color: Colors.black)),
             onPressed: () => Navigator.pop(context),
           ),
+    actions: [
+      Padding(
+        padding: const EdgeInsets.only(right: 12.0),
+        child: IconButton(
+          icon: Icon(
+            Icons.settings,
+            color: Colors.black,
+          ),
+          onPressed: onSettingsClick,
+        ),
+      )
+    ],
   );
 }

@@ -261,50 +261,27 @@ class _ProfileState extends State<Profile> {
       //     children: gridTiles,
       //   );
     } else if (postOrientation == "list") {
-      return Column(
+      return Expanded(
+          child: ListView(
         children: posts,
-      );
+      ));
     }
   }
 
   Container buildButton({required String text, required Function() function}) {
     return Container(
-      // padding: EdgeInsets.symmetric(vertical: 2, horizontal: 15),
+      height: 30,
+      // padding: EdgeInsets.symmetric(vertical: 1, horizontal: 1),
       child: TextButton(
         child: Text(text,
             style: TextStyle(
-                color: isFollowing ? Colors.black : Colors.blue, fontSize: 15)),
+                color: isFollowing ? Colors.black : Colors.blue, fontSize: 12)),
         onPressed: function,
       ),
       decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade300),
           borderRadius: BorderRadius.circular(10)),
     );
-
-    // return Container(
-    //   padding: EdgeInsets.only(top: 2.0),
-    //   child: TextButton(
-    //     onPressed: function,
-    //     child: Container(
-    //       width: 250.0,
-    //       height: 27.0,
-    //       child: Text(
-    //         text,
-    //         style: TextStyle(
-    //           color: isFollowing ? Colors.black : Colors.white,
-    //           fontWeight: FontWeight.bold,
-    //         ),
-    //       ),
-    //       alignment: Alignment.center,
-    //       decoration: BoxDecoration(
-    //           color: isFollowing ? Colors.white : Colors.blue,
-    //           border: Border.all(
-    //             color: isFollowing ? Colors.grey : Colors.blue,
-    //           ),
-    //           borderRadius: BorderRadius.circular(5.0)),
-    //     ),
-    //   ),
-    // );
   }
 
   FutureBuilder buildProfileHeader() {
@@ -392,8 +369,8 @@ class _ProfileState extends State<Profile> {
             children: [
               // profile photo
               Container(
-                height: 100,
-                width: 100,
+                height: 50,
+                width: 50,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   image: DecorationImage(
@@ -403,12 +380,12 @@ class _ProfileState extends State<Profile> {
               ),
               // username
               Padding(
-                padding: const EdgeInsets.only(top: 20, bottom: 8),
+                padding: const EdgeInsets.only(top: 10, bottom: 8),
                 child: Text(
                   user.username,
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: 20,
+                    fontSize: 15,
                   ),
                 ),
               ),
@@ -435,14 +412,14 @@ class _ProfileState extends State<Profile> {
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20),
+                                fontSize: 15),
                           ),
                           SizedBox(
                             height: 5,
                           ),
                           Text(
                             'Following',
-                            style: TextStyle(color: Colors.grey, fontSize: 15),
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
                           ),
                         ],
                       ),
@@ -457,14 +434,14 @@ class _ProfileState extends State<Profile> {
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20),
+                                fontSize: 15),
                           ),
                           SizedBox(
                             height: 5,
                           ),
                           Text(
                             'Followers',
-                            style: TextStyle(color: Colors.grey, fontSize: 15),
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
                           ),
                         ],
                       ),
@@ -480,7 +457,7 @@ class _ProfileState extends State<Profile> {
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20),
+                                fontSize: 15),
                           ),
                           SizedBox(
                             height: 5,
@@ -489,7 +466,7 @@ class _ProfileState extends State<Profile> {
                             '  Pins  ',
                             style: TextStyle(
                               color: Colors.grey,
-                              fontSize: 15,
+                              fontSize: 12,
                             ),
                           ),
                         ],
@@ -498,7 +475,7 @@ class _ProfileState extends State<Profile> {
                   ),
                 ],
               ),
-              SizedBox(height: 15),
+              SizedBox(height: 10),
               // buttons -> edit profile, insta links, bookmark
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -507,7 +484,7 @@ class _ProfileState extends State<Profile> {
                 ],
               ),
 
-              SizedBox(height: 15),
+              SizedBox(height: 10),
             ],
           );
         });
@@ -544,12 +521,12 @@ class _ProfileState extends State<Profile> {
         future: usersRef.doc(widget.profileId).get(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return profileAppBar(context,
+            return profileAppBar(context, editProfile,
                 username: "",
                 removeBackButton: widget.removeBackArrowFromAppbar);
           }
           User user = User.fromDocument(snapshot.data);
-          return profileAppBar(context,
+          return profileAppBar(context, editProfile,
               username: user.displayName,
               removeBackButton: widget.removeBackArrowFromAppbar);
         });
@@ -558,23 +535,22 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
-        child: buildProfileAppBar(),
-      ),
-      body: ListView(
-        children: [
-          buildProfileHeader2(),
-          Divider(
-            height: 0.0,
-          ),
-          buildTogglePostOrientation(),
-          Divider(
-            height: 0.0,
-          ),
-          buildProfilePosts(),
-        ],
-      ),
-    );
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: buildProfileAppBar(),
+        ),
+        body: Column(
+          children: [
+            buildProfileHeader2(),
+            Divider(
+              height: 0.0,
+            ),
+            buildTogglePostOrientation(),
+            Divider(
+              height: 0.0,
+            ),
+            buildProfilePosts(),
+          ],
+        ));
   }
 }
